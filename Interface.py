@@ -6,11 +6,11 @@ from typing import Union
 
 class Interface:
     TOKEN : str
-    headers = {"Authorize" : None}
+    headers = {"Authorization" : None}
     timeout = 10
     def __init__(self, token):
         self.TOKEN = token
-        self.headers['Authorize'] = f"Basic {self.TOKEN}"
+        self.headers['Authorization'] = f"Basic {self.TOKEN}"
     
     @staticmethod
     def Data(response : Response):
