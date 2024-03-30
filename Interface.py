@@ -1,4 +1,3 @@
-
 from requests import get, post
 from requests.models import Response
 from requests.exceptions import RequestException, Timeout, HTTPError
