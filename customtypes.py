@@ -228,6 +228,20 @@ class Triangle:
         has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
         return not (has_neg and has_pos)
 
+
+class Line:
+
+    def __init__(self, p1 : Point, p2 : Point, color : Color = Color(Color.BLACK), is_smooth = False, width = 3) -> None:
+        self.p1 = p1
+        self.p2 = p2
+        self.color = color
+        self.is_smooth = is_smooth
+        self.width = width
+    
+    def Length(self) -> float:
+        return Point.Distance(self.p1, self.p2)
+
+        
         
 
 if __name__ == "__main__":

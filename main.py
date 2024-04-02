@@ -1,5 +1,5 @@
 from gui import GUI
-from customtypes import Color, Rectangle, Circle, Triangle, Point
+from customtypes import Color, Rectangle, Circle, Triangle, Point, Line
 import pygame
 from Interface import Interface
 import config
@@ -20,6 +20,7 @@ gui.setBackground(Color(GOLUBENKIY))
 r = Rectangle(50,50, 50,50, Color(Color.RED))
 c = Circle(10, 10, 20, Color(Color.BLUE))
 t = Triangle(Point(300,300), Point(400,400), Point(300,400), color=Color(Color.RED))
+l = Line(Point(1,1), Point(200,100), Color(Color.GREEN), width=10)
 
 #главная функция где должна происходить отрисовка
 @gui.run
@@ -50,7 +51,7 @@ def main(events):
             elif event.key == pygame.K_ESCAPE:
                 exit()
 
-    gui.setObjects([r,c, t]) # самое главное - отрисовка всех элементов(кругов и прямоугольников)
+    gui.setObjects([r,c, t, l]) # самое главное - отрисовка всех элементов(кругов и прямоугольников)
 
 """
     Закрыть отрисовщик на Escape
