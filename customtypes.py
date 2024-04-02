@@ -166,6 +166,35 @@ class Rectangle:
         return self.obj.collidepoint(x,y)
 
 
+class Vector2D:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __mul__(self, scalar):
+        return Vector2D(self.x * scalar, self.y * scalar)
+
+    def __add__(self, other):
+        return Vector2D(self.x + other.x, self.y + other.y)
+
+    def __neg__(self):
+        return Vector2D(-self.x, -self.y)
+
+    def __sub__(self, other):
+        return self + (-other)
+
+    def tuple(self):
+        return self.x, self.y
+
+
+class Vector:
+    UP = Vector2D(0, -1)
+    DOWN = Vector2D(0, 1)
+    LEFT = Vector2D(-1, 0)
+    RIGHT = Vector2D(1, 0)
+    ZERO = Vector2D(0, 0)
+
 if __name__ == "__main__":
     
     #Colors
