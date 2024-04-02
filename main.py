@@ -1,5 +1,5 @@
 from gui import GUI
-from customtypes import Color, Rectangle, Circle
+from customtypes import Color, Rectangle, Circle, Triangle, Point
 import pygame
 from Interface import Interface
 import config
@@ -19,6 +19,7 @@ gui.setBackground(Color(GOLUBENKIY))
 #создаем объекты для отрисовки
 r = Rectangle(50,50, 50,50, Color(Color.RED))
 c = Circle(10, 10, 20, Color(Color.BLUE))
+t = Triangle(Point(300,300), Point(400,400), Point(300,400), color=Color(Color.RED))
 
 #главная функция где должна происходить отрисовка
 @gui.run
@@ -32,6 +33,8 @@ def main(events):
                 print("COLLIDE RECT")
             if c.collidepoint(pos[0], pos[1]): # если нажали на круг `c`
                 print("COLLIDE CIRCLE")
+            if t.collidepoint(pos[0], pos[1]): # если нажали на треугольник
+                print("COLLIDE TRIANGLE")
         elif event.type == pygame.KEYDOWN: # обработка событий нажатия на клавиши
             """
                 Подробнее обо всех событиях клавиатуры на
@@ -42,10 +45,12 @@ def main(events):
                 r.move(-10,0)
             elif event.key == pygame.K_RIGHT:
                 r.move(10,0)
+            elif event.key == pygame.K_DOWN:
+                t.rotate(-15)                # теперь треугольник можно поворачивать
             elif event.key == pygame.K_ESCAPE:
                 exit()
 
-    gui.setObjects([r,c]) # самое главное - отрисовка всех элементов(кругов и прямоугольников)
+    gui.setObjects([r,c, t]) # самое главное - отрисовка всех элементов(кругов и прямоугольников)
 
 """
     Закрыть отрисовщик на Escape

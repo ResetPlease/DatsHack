@@ -1,6 +1,6 @@
 from __future__ import annotations
 import pygame
-from customtypes import Point, Color, Rectangle, Circle
+from customtypes import Point, Color, Rectangle, Circle, Triangle
 from typing import Union
 from copy import deepcopy
 
@@ -49,8 +49,12 @@ class GUI:
             for i in self.data:
                 if isinstance(i, Rectangle):
                     self.__rect(i)
-                else:
+                elif isinstance(i, Circle):
                     self.__circle(i)
+                elif isinstance(i, Triangle):
+                    self.__triangle(i)
+                else:
+                    raise Exception(f"Wrong object i type={type(i)}")
             pygame.display.flip()
         pygame.quit
 
@@ -65,3 +69,6 @@ class GUI:
     
     def __circle(self, object : Circle) -> None:
         pygame.draw.circle(self.screen, object.color(), (object.x, object.y), object.r)
+
+    def __triangle(self, object : Triangle) -> None:
+        pygame.draw.polygon(self.screen, object.color(), object.getPoints())

@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Any, Union
 from copy import deepcopy
-from pygame import Rect      
+from pygame import Rect
+from math import sin, cos, pi, acos
 
 class Point:
     """
@@ -28,11 +29,13 @@ class Point:
     def __str__(self) -> str:
         return f"Point{self()}"
 
-    def __add__(self, rhs : Union[Point, float, int]) -> Point:
+    def __add__(self, rhs : Union[Point, float, int, tuple, list]) -> Point:
         if isinstance(rhs, Point):
             return Point(self.x+rhs.x, self.y+rhs.y)
         elif isinstance(rhs, int) or isinstance(rhs, float):
             return self + Point(rhs,rhs)
+        elif isinstance(rhs, tuple) or isinstance(rhs, list):
+            return self + Point(rhs)
 
     def __neg__(self) -> Point:    
         return Point(-self.x, -self.y)
@@ -40,8 +43,22 @@ class Point:
     def __sub__(self, rhs : Union[Point, float, int]) -> Point:
         return self + (-rhs)
     
-    def __mul__(self, rhs : Union[float, int]) -> Point:
-        return Point(self.x*rhs, self.y*rhs)
+    def __mul__(self, rhs : Union[float, int, list, tuple]) -> Point:
+        if isinstance(rhs, int) or isinstance(rhs, float):
+            return Point(self.x*rhs, self.y*rhs)
+        elif isinstance(rhs, list) or isinstance(rhs, tuple):
+            rhs = list(rhs)
+            if(len(rhs) > 2 or len(rhs) < 1):
+                raise Exception("Вектор должен содержать n элементов, 1 <= n <= 2")
+            result = [self.x, self.y]
+            for i in range(len(rhs)):
+                result[i] *= rhs[i]
+            return Point(result)
+        else:
+            raise Exception(f"Unknowk type of rhs -> {type(rhs)}")
+
+    def Abs(self, xc : float = 0.0, yc : float = 0.0) -> float:
+        return ((self.x-xc)**2 + (self.y-yc)**2)**0.5
     
     @staticmethod
     def Scalar(a : Point, b : Point) -> float:
@@ -55,6 +72,7 @@ class Point:
     def Manhattan(a : Point, b : Point) -> float:
         result = a-b
         return abs(result.x) + abs(result.y)
+    
 
 
 class Color:
@@ -165,6 +183,52 @@ class Rectangle:
     def collidepoint(self, x : float, y:float) -> int:
         return self.obj.collidepoint(x,y)
 
+class Triangle:
+    """
+        Так же обертка для простого треугольника.
+        Нет проверки на дурака, так что пж треугольник нормальный на вход.
+    """
+    def __init__(self, p1 : Point, p2 : Point, p3 : Point, color : Color = Color(Color.BLACK)) -> None:
+        self.p1 = p1
+        self.p2 = p2
+        self.p3 = p3
+        self.color = color
+    
+    def move(self, dx : float, dy : float) -> None:
+        self.p1 = self.p1 + (dx,dy)
+        self.p2 = self.p2 + (dx,dy)
+        self.p3 = self.p3 + (dx,dy)
+    
+    def __rotate(self,p : Point, angle : float) -> Point:
+        result = Point(0,0)
+        result.x = p.x*cos(angle) - p.y*sin(angle)
+        result.y = p.x*sin(angle) + p.y*cos(angle)
+        return result
+
+    def rotate(self, angle : float) -> None:
+        angle = pi/180.0*angle 
+        center = Point( (self.p1.x + self.p2.x + self.p3.x)/3.0, (self.p1.y + self.p2.y + self.p3.y)/3.0 )
+        self.p1 = self.__rotate(self.p1 - center, angle) + center
+        self.p2 = self.__rotate(self.p2 - center, angle) + center
+        self.p3 = self.__rotate(self.p3 - center, angle) + center
+
+    def getPoints(self) -> tuple[Point]:
+        return (self.p1(), self.p2(), self.p3())
+
+    def __sign(self,p1 : Point, p2 : Point, p3 : Point) -> float:
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
+
+    def collidepoint(self, x, y) -> bool:
+        pt = Point(x,y)
+        has_neg, has_pos = False, False
+        d1 = self.__sign(pt, self.p1, self.p2)
+        d2 = self.__sign(pt, self.p2, self.p3)
+        d3 = self.__sign(pt, self.p3, self.p1)
+        has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+        has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+        return not (has_neg and has_pos)
+
+        
 
 if __name__ == "__main__":
     
