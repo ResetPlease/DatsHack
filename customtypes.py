@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Any, Union
 from copy import deepcopy
+import pygame
 from pygame import Rect
 from math import sin, cos, pi, acos
 
@@ -241,7 +242,46 @@ class Line:
     def Length(self) -> float:
         return Point.Distance(self.p1, self.p2)
 
-        
+
+class Text:
+    """
+        `Point` - центр прямоугольника с текстом.
+
+        `smooth` - сглаживание текста
+
+        `font` - можно указать какой-нибудь шрифт, если он есть в системе. По умолчанию None(шрифт pygame)
+    """
+    def __init__(self, text : str, point : Point, color : Color = Color(Color.BLACK), 
+                font = None, size : int = 24, smooth : bool = False) -> None:
+        self.text = text
+        self.font = font
+        self.size = size
+        self.smooth = smooth
+        self.point = point
+        self.color = color
+        self.obj = pygame.font.Font(font, size)
+    
+    def render(self, text : str = ""):
+        if text != "":
+            self.text = text
+        return self.obj.render(self.text, self.smooth, self.color())
+    
+    def setColor(self, color : Color) -> None:
+        self.color = color
+    
+    def setText(self, text : str) -> None:
+        self.render(text)
+    
+    def setPoint(self, point : Point) -> None:
+        self.point = point
+    
+    def setSmooth(self, smooth : bool) -> None:
+        self.smooth = smooth
+    
+    def setSize(self, size : int) -> None:
+        self.size = size
+        self.obj = pygame.font.Font(self.font, self.size)
+        self.render(self.text)
         
 
 class Vector2D:

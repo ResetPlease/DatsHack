@@ -1,6 +1,6 @@
 from __future__ import annotations
 import pygame
-from customtypes import Point, Color, Rectangle, Circle, Triangle, Line
+from customtypes import Point, Color, Rectangle, Circle, Triangle, Line, Text
 from typing import Union
 from copy import deepcopy
 
@@ -30,9 +30,11 @@ class GUI:
         self.title = title
         pygame.display.set_caption(self.title)
         self.screen.fill(self.__background_color)
-        self.data = []
+        self.data = [] # лист с объектами
         self.clock = pygame.time.Clock()
-        self.tick = 10
+        self.tick = 10 # FPS
+        pygame.font.init() # инициализируем шрифты
+        pygame.font.Font(None, 24)
 
     def run(self, func = lambda x : None) -> None:
         self.__run(func)
@@ -55,6 +57,8 @@ class GUI:
                     self.__triangle(i)
                 elif isinstance(i, Line):
                     self.__line(i)
+                elif isinstance(i, Text):
+                    self.__text(i)
                 else:
                     raise Exception(f"Wrong object i type={type(i)}")
             pygame.display.flip()
@@ -64,7 +68,7 @@ class GUI:
         self.__background_color = color()
     
     def setObjects(self, list_of_objects : list) -> None:
-        self.data = deepcopy(list_of_objects)
+        self.data = list_of_objects # ?????
     
     def __rect(self, object : Rectangle) -> None:
         pygame.draw.rect(self.screen, object.color(), object.obj)
@@ -74,6 +78,10 @@ class GUI:
 
     def __triangle(self, object : Triangle) -> None:
         pygame.draw.polygon(self.screen, object.color(), object.getPoints())
+    
+    def __text(self, object : Text) -> None:
+        element = object.render()
+        self.screen.blit(element, element.get_rect(center = object.point()))
     
     def __line(self, object : Line) -> None:
         if( object.is_smooth ):

@@ -1,5 +1,5 @@
 from gui import GUI
-from customtypes import Color, Rectangle, Circle, Triangle, Point, Line, Vector2D, Vector
+from customtypes import *
 import pygame
 from Interface import Interface
 import config
@@ -27,6 +27,10 @@ vector = Vector.ZERO
 t = Triangle(Point(300,300), Point(400,400), Point(300,400), color=Color(Color.RED))
 l = Line(Point(1,1), Point(200,100), Color(Color.GREEN), width=10)
 
+# Тест текста
+MousePosition = Text("Click Please", Point(200,200), smooth=True, size=36)
+StacicText = Text("Hello World!", Point(300,300), smooth=True, size=72)
+
 # главная функция где должна происходить отрисовка
 @gui.run
 def main(events):
@@ -35,6 +39,7 @@ def main(events):
     for event in events:  # обработка событий
         if event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
+            MousePosition.setText(str(pos))
             print(pos)  # печатаем координату нажатия мыши
             if r.collidepoint(pos[0], pos[1]):  # если нажали на прямоугольник `r`
                 print("COLLIDE RECT")
@@ -70,7 +75,7 @@ def main(events):
                 vector -= Vector.DOWN
 
     r.move((vector * SPEED).x, (vector * SPEED).y)
-    gui.setObjects([r,c, t, l]) # самое главное - отрисовка всех элементов(кругов и прямоугольников)
+    gui.setObjects([r,c, t, l, MousePosition, StacicText]) # самое главное - отрисовка всех элементов
 
 """
     Закрыть отрисовщик на Escape
