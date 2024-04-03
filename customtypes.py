@@ -35,7 +35,8 @@ class Point:
         return list(self())
 
     def __str__(self) -> str:
-        return f"Point{self()}"
+        result = self()
+        return f"Point({round(result[0],3)}..., {round(result[1],3)}...)"
 
     def __add__(self, rhs : Union[Point, float, int, tuple, list]) -> Point:
         if isinstance(rhs, Point):
@@ -64,6 +65,14 @@ class Point:
             return Point(result)
         else:
             raise Exception(f"Unknowk type of rhs -> {type(rhs)}")
+    
+    def __eq__(self, rhs : Point) -> bool:
+        if isinstance(rhs, Point):
+            return self.x == rhs.x and self.y == rhs.y
+        else:
+            print(f"Point::Not implemented operator== with {type(rhs)}")
+            return False
+
 
     def Abs(self, xc : float = 0.0, yc : float = 0.0) -> float:
         return ((self.x-xc)**2 + (self.y-yc)**2)**0.5
@@ -132,7 +141,6 @@ class Color:
                 colors = colors.replace("#", "")
                 colors = [colors[i:i+2] for i in range(0, len(colors), 2)]
                 self.colors = list(map(lambda x : int("0x"+x,16), colors))
-                print(self.colors)
             except:
                 print("Colors::ERR-> it isnt HEX format. DEFAULT::BLACK")
                 self.colors = list(Color.BLACK)
@@ -174,6 +182,8 @@ class Circle:
         * `collidepoint` проверяет коллизию для круга и точки
     """
     def __init__(self, x: int, y : int, r : int, color = Color(Color.BLACK)) -> None:
+        self.normal_point = Point(x,y)
+        self.normal_radius = r
         self.base_point = Point(x,y)
         self.base_r = r
         self.x = x
@@ -182,8 +192,10 @@ class Circle:
         self.color = color
         self.scale = 1.0
     
-    def move(self, dx : int, dy : int) -> None:
+    def move(self, dx : int, dy : int, iscamera : bool = False) -> None:
         self.base_point = self.base_point + (dx,dy)
+        if not iscamera:
+            self.normal_point = self.normal_point + (dx,dy)
         self.x, self.y = (self.base_point*self.scale)()
     
     def setScale(self, sc : float) -> None:
@@ -199,7 +211,7 @@ class Circle:
             pt = Point(x)
         else:
             pt = Point(x,y)
-        if (self.x-pt.x)**2 + (self.y-pt.y)**2 <= self.r**2:
+        if Point.Distance(self.normal_point, pt) <= self.normal_radius:
             return True
         return False
 
@@ -213,6 +225,8 @@ class Rectangle:
     """
     def __init__(self, x : int, y : int, w : int, h : int, color = Color(Color.BLACK)) -> None:
         self.obj = Rect(x,y,w,h)
+        self.normal_point = Point(x,y)
+        self.normal_size = Point(w,h)
         self.base_point = Point(x,y)
         self.base_wh = Point(w,h)
         self.x = x
@@ -222,8 +236,10 @@ class Rectangle:
         self.color = color
         self.scale = 1.0
     
-    def move(self, dx : int, dy : int) -> None:
+    def move(self, dx : int, dy : int, iscamera : bool = False) -> None:
         self.base_point = self.base_point + (dx,dy)
+        if not iscamera:
+            self.normal_point = self.normal_point + (dx,dy)
         self.x, self.y = (self.base_point*self.scale)()
         self.render()
     
@@ -244,7 +260,8 @@ class Rectangle:
             pt = Point(x)
         else:
             pt = Point(x,y)
-        return self.obj.collidepoint(pt.x, pt.y)
+        new_object = pygame.Rect(self.normal_point.x, self.normal_point.y, self.normal_size.x, self.normal_size.y)
+        return new_object.collidepoint(pt.x, pt.y)
 
 class Triangle:
     """
@@ -252,6 +269,7 @@ class Triangle:
         Нет проверки на дурака, так что пж треугольник нормальный на вход.
     """
     def __init__(self, p1 : Point, p2 : Point, p3 : Point, color : Color = Color(Color.BLACK)) -> None:
+        self.normal_points = [Point(p1), Point(p2), Point(p3)]
         self.base_p1 = p1
         self.base_p2 = p2
         self.base_p3 = p3
@@ -261,10 +279,14 @@ class Triangle:
         self.p3 = p3
         self.color = color
     
-    def move(self, dx : float, dy : float) -> None:
+    def move(self, dx : float, dy : float, iscamera : bool = False) -> None:
         self.base_p1 = self.base_p1+Point(dx,dy)
         self.base_p2 = self.base_p2+Point(dx,dy)
         self.base_p3 = self.base_p3+Point(dx,dy)
+        if not iscamera:
+            self.normal_points[0] = self.normal_points[0] + (dx,dy)
+            self.normal_points[1] = self.normal_points[1] + (dx,dy)
+            self.normal_points[2] = self.normal_points[2] + (dx,dy)
         self.p1 = self.base_p1*self.scale
         self.p2 = self.base_p2*self.scale
         self.p3 = self.base_p3*self.scale
@@ -303,36 +325,20 @@ class Triangle:
         else:
             pt = Point(x,y)
         has_neg, has_pos = False, False
-        d1 = self.__sign(pt, self.p1, self.p2)
-        d2 = self.__sign(pt, self.p2, self.p3)
-        d3 = self.__sign(pt, self.p3, self.p1)
+        v1 = self.normal_points[0]
+        v2 = self.normal_points[1]
+        v3 = self.normal_points[2]
+        d1 = self.__sign(pt, v1, v2)
+        d2 = self.__sign(pt, v2, v3)
+        d3 = self.__sign(pt, v3, v1)
         has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
         has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
         return not (has_neg and has_pos)
 
 
-class Line:
-    """
-        No scalable object
-    """
-    def __init__(self, p1 : Point, p2 : Point, color : Color = Color(Color.BLACK), is_smooth = False, width = 3) -> None:
-        self.p1 = p1
-        self.p2 = p2
-        self.color = color
-        self.is_smooth = is_smooth
-        self.width = width
-    
-    def move(self, dx : int, dy : int) -> None:
-        self.p1 = self.p1 + (dx,dy)
-        self.p2 = self.p2 + (dx,dy)
-    
-    def Length(self) -> float:
-        return Point.Distance(self.p1, self.p2)
-
-
 class Text:
     """
-        No scalable object
+        Статический объект(касательно позиции на экране)
         
         `Point` - центр прямоугольника с текстом.
 

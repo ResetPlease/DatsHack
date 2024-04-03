@@ -9,31 +9,37 @@ manager.Register("GET_SOMETHING_DATA", "http://www.google.com", "GET")
 
 # инициализация класса отрисовщика
 gui = GUI(700, 700, "DatsHack")
-
-GOLUBENKIY = (0, 191, 255)
-
-# установка цвета фона (ОПЦИОНАЛЬНО)
-gui.setBackground(Color(GOLUBENKIY))
+gui.setScaler(1.1) # коэффициент масштабирования
+gui.setBackground(Color(Color.WHITE))
+gui.setCameraSpeed(20) # Скорость движения камеры
 
 # создаем объекты для отрисовки
 r = Rectangle(50, 50, 50, 50, Color(Color.RED))
 c = Circle(10, 10, 20, Color(Color.BLUE))
+t = Triangle(Point(300,300), Point(400,400), Point(300,400), color=Color(Color.RED))
+testRect = Rectangle(600,600,200,200, Color(Color.MAGENTA))
 SPEED = 10
     # UP = [0, -1]
     # DOWN = [0, 1]
     # LEFT = [-1, 0]
     # RIGHT = [1, 0]
 vector = Vector.ZERO
-t = Triangle(Point(300,300), Point(400,400), Point(300,400), color=Color(Color.RED))
-l = Line(Point(1,1), Point(200,100), Color(Color.GREEN), width=10)
 
-# Тест текста
-MousePosition = Text("Click Please", Point(200,200), smooth=True, size=36, color = Color("#808000"))
-StacicText = Text("Hello World!", Point(300,300), smooth=True, size=72)
 
-testRect = Rectangle(600,600,200,200, Color(Color.MAGENTA))
+"""
+    Теперь можно масштабировать с помощью колесика мыши.
+    Теперь можно двигать камерой(WASD) и смотреть что там "в отрицательных координатах"
+"""
 
+
+# Text
+MousePosition = Text("Click Please", Point(200,gui.height-50), smooth=True, size=36, color = Color("#808000"))
+StacicText = Text("Hello World!", Point(gui.width//2,gui.height//2), smooth=True, size=72)
 ScaleText = Text(f"Scale: {gui.scale}", Point(200, gui.height-20), Color(Color.RED), size=36, smooth=True)
+
+
+SECRET_OBJECT = Rectangle(2000, 2000, 300, 300, Color(Color.MAROON))
+SECRET_OBJECT2 = Rectangle(-300,-300,100,100, Color(Color.BLUE))
 
 # главная функция где должна происходить отрисовка
 @gui.run
@@ -46,17 +52,17 @@ def main(events):
                 pos = gui.getMousePoint()
                 MousePosition.setText(str(pos))
                 print(pos)  # печатаем координату нажатия мыши
-                if r.collidepoint(pos):  # если нажали на прямоугольник `r`
+                if r.collidepoint(pos.x, pos.y):  # если нажали на прямоугольник `r`
                     print("COLLIDE RECT")
-                if c.collidepoint(pos):  # если нажали на круг `c`
+                if c.collidepoint(pos.x, pos.y):  # если нажали на круг `c`
                     print("COLLIDE CIRCLE")
-                if t.collidepoint(pos): # если нажали на треугольник
+                if t.collidepoint(pos.x, pos.y): # если нажали на треугольник
                     print("COLLIDE TRIANGLE")
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == MOUSE.SCROLL_UP:  # Прокрутка вверх
-                gui.scale *= 1.1
+                gui.ScaleUp()
             elif event.button == MOUSE.SCROLL_DOWN:  # Прокрутка вниз
-                gui.scale /= 1.1
+                gui.ScaleDown()
             ScaleText.setText(f"Scale: {gui.scale}")
         elif event.type == pygame.KEYDOWN: # обработка событий нажатия на клавиши
             """
@@ -75,6 +81,16 @@ def main(events):
                 t.rotate(-15)                # теперь треугольник можно поворачивать
             elif event.key == pygame.K_ESCAPE:
                 exit()
+            
+            #Движение камеры бляяя
+            elif event.key == pygame.K_a:
+                gui.CameraMove(-1,0)
+            elif(event.key == pygame.K_d):
+                gui.CameraMove(1,0)
+            elif event.key == pygame.K_s:
+                gui.CameraMove(0,1)
+            elif event.key == pygame.K_w:
+                gui.CameraMove(0,-1)
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:  # двигаемся на правую и левую стрелочки
                 vector -= Vector.LEFT
@@ -86,7 +102,7 @@ def main(events):
                 vector -= Vector.DOWN
 
     r.move((vector * SPEED).x, (vector * SPEED).y)
-    data = [r,c, t, l, MousePosition, StacicText, testRect, ScaleText]
+    data = [r,c, t, MousePosition, StacicText, testRect, ScaleText, SECRET_OBJECT, SECRET_OBJECT2]
     gui.setObjects(data) # самое главное - отрисовка всех элементов
 """
     Закрыть отрисовщик на Escape
