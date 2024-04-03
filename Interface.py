@@ -51,7 +51,7 @@ class Interface:
         return None
         
     
-    def Register(self, name : str, url : str, method : str):
+    def Register(self, name : str, url : str, method : str) -> None:
         """
             Метод Register регистрирует в классе Interface новый метод 
             c именем `name` с указанным эндпоинтом API и типом запроса.

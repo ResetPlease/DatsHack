@@ -5,6 +5,13 @@ import pygame
 from pygame import Rect
 from math import sin, cos, pi, acos
 
+class MOUSE:
+    LEFT = 1
+    RIGHT = 3
+    MID = 2
+    SCROLL_UP = 4
+    SCROLL_DOWN = 5
+
 class Point:
     """
         На всякий случай. Может когда-нибудь пригодится.
@@ -98,16 +105,37 @@ class Color:
             black = Color(Color.BLACK)
     """
     max_color = 256
-    BLACK = (0,0,0)
-    WHITE = (255,255,255)
-    GRAY =  (128,128,128)
-    RED =   (255,0,0)
-    GREEN = (0,255,0)
-    BLUE =  (0,0,255)
+    BLACK   = (0,0,0)
+    WHITE   = (255,255,255)
+    GRAY    = (128,128,128)
+    RED     = (255,0,0)
+    GREEN   = (0,255,0)
+    BLUE    = (0,0,255)
+    LIME    = (0,255,0)
+    YELLOW  = (255,255,0)
+    CYAN    = (0,255,255)
+    MAGENTA = (255,0,255)
+    SILVER  = (192,192,192)
+    GRAY    = (128,128,128)
+    MAROON  = (128,0,0)
+    OLIVE   = (128,128,0)
+    GREEN   = (0,128,0)
+    PURPLE  = (128,0,128)
+    TEAL    = (0,128,128)
+    NAVY    = (0,0,128)
 
-    def __init__(self, colors : Union[tuple, list, Color]) -> None:
+    def __init__(self, colors : Union[tuple, list, Color, str]) -> None:
         if isinstance(colors, Color):
             self.colors = deepcopy(colors.colors)
+        elif isinstance(colors, str):
+            try:
+                colors = colors.replace("#", "")
+                colors = [colors[i:i+2] for i in range(0, len(colors), 2)]
+                self.colors = list(map(lambda x : int("0x"+x,16), colors))
+                print(self.colors)
+            except:
+                print("Colors::ERR-> it isnt HEX format. DEFAULT::BLACK")
+                self.colors = list(Color.BLACK)
         else:
             self.colors = list(colors)
 
@@ -145,18 +173,33 @@ class Circle:
         * `move` изменяет координаты круга
         * `collidepoint` проверяет коллизию для круга и точки
     """
-    def __init__(self, x:int, y : int, r : int, color = Color(Color.BLACK)) -> None:
+    def __init__(self, x: int, y : int, r : int, color = Color(Color.BLACK)) -> None:
+        self.base_point = Point(x,y)
+        self.base_r = r
         self.x = x
         self.y = y
         self.r = r
         self.color = color
+        self.scale = 1.0
     
     def move(self, dx : int, dy : int) -> None:
-        self.x += dx
-        self.y += dy
+        self.base_point = self.base_point + (dx,dy)
+        self.x, self.y = (self.base_point*self.scale)()
+    
+    def setScale(self, sc : float) -> None:
+        if self.scale != sc:
+            self.x, self.y = (self.base_point*sc)()
+            self.r = self.base_r*sc
+            self.scale = sc
 
-    def collidepoint(self, x : float, y : float) -> bool:
-        if (self.x-x)**2 + (self.y-y)**2 <= self.r**2:
+    def collidepoint(self, x : float, y : float = 0.0) -> bool:
+        if isinstance(x, Point):
+            pt = x
+        elif isinstance(x, tuple):
+            pt = Point(x)
+        else:
+            pt = Point(x,y)
+        if (self.x-pt.x)**2 + (self.y-pt.y)**2 <= self.r**2:
             return True
         return False
 
@@ -170,19 +213,38 @@ class Rectangle:
     """
     def __init__(self, x : int, y : int, w : int, h : int, color = Color(Color.BLACK)) -> None:
         self.obj = Rect(x,y,w,h)
+        self.base_point = Point(x,y)
+        self.base_wh = Point(w,h)
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.color = color
+        self.scale = 1.0
     
     def move(self, dx : int, dy : int) -> None:
-        self.x += dx
-        self.y += dy
-        self.obj = Rect(self.x, self.y, self.w, self.h)
+        self.base_point = self.base_point + (dx,dy)
+        self.x, self.y = (self.base_point*self.scale)()
+        self.render()
     
-    def collidepoint(self, x : float, y:float) -> int:
-        return self.obj.collidepoint(x,y)
+    def render(self) -> None:
+        self.obj = Rect(self.x, self.y, self.w, self.h)
+
+    def setScale(self, sc : float) -> None:
+        if self.scale != sc:
+            self.x, self.y = (self.base_point*sc)()
+            self.w, self.h = (self.base_wh*sc)()
+            self.render()
+            self.scale = sc
+
+    def collidepoint(self, x : float, y:float = 0.0) -> int:
+        if isinstance(x, Point):
+            pt = x
+        elif isinstance(x, tuple):
+            pt = Point(x)
+        else:
+            pt = Point(x,y)
+        return self.obj.collidepoint(pt.x, pt.y)
 
 class Triangle:
     """
@@ -190,16 +252,28 @@ class Triangle:
         Нет проверки на дурака, так что пж треугольник нормальный на вход.
     """
     def __init__(self, p1 : Point, p2 : Point, p3 : Point, color : Color = Color(Color.BLACK)) -> None:
+        self.base_p1 = p1
+        self.base_p2 = p2
+        self.base_p3 = p3
+        self.scale = 1.0
         self.p1 = p1
         self.p2 = p2
         self.p3 = p3
         self.color = color
     
     def move(self, dx : float, dy : float) -> None:
-        self.p1 = self.p1 + (dx,dy)
-        self.p2 = self.p2 + (dx,dy)
-        self.p3 = self.p3 + (dx,dy)
+        self.base_p1 = self.base_p1+Point(dx,dy)
+        self.base_p2 = self.base_p2+Point(dx,dy)
+        self.base_p3 = self.base_p3+Point(dx,dy)
+        self.p1 = self.base_p1*self.scale
+        self.p2 = self.base_p2*self.scale
+        self.p3 = self.base_p3*self.scale
     
+    def setScale(self, sc : float) -> None:
+        if self.scale != sc:
+            self.scale = sc
+            self.move(0,0)
+
     def __rotate(self,p : Point, angle : float) -> Point:
         result = Point(0,0)
         result.x = p.x*cos(angle) - p.y*sin(angle)
@@ -208,10 +282,12 @@ class Triangle:
 
     def rotate(self, angle : float) -> None:
         angle = pi/180.0*angle 
-        center = Point( (self.p1.x + self.p2.x + self.p3.x)/3.0, (self.p1.y + self.p2.y + self.p3.y)/3.0 )
-        self.p1 = self.__rotate(self.p1 - center, angle) + center
-        self.p2 = self.__rotate(self.p2 - center, angle) + center
-        self.p3 = self.__rotate(self.p3 - center, angle) + center
+        center = Point( (self.base_p1.x + self.base_p2.x + self.base_p3.x)/3.0, 
+                       (self.base_p1.y + self.base_p2.y + self.base_p3.y)/3.0 )
+        self.base_p1 = self.__rotate(self.base_p1 - center, angle) + center
+        self.base_p2 = self.__rotate(self.base_p2 - center, angle) + center
+        self.base_p3 = self.__rotate(self.base_p3 - center, angle) + center
+        self.move(0,0)
 
     def getPoints(self) -> tuple[Point]:
         return (self.p1(), self.p2(), self.p3())
@@ -219,8 +295,13 @@ class Triangle:
     def __sign(self,p1 : Point, p2 : Point, p3 : Point) -> float:
         return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y)
 
-    def collidepoint(self, x, y) -> bool:
-        pt = Point(x,y)
+    def collidepoint(self, x, y : float = 0.0) -> bool:
+        if isinstance(x, Point):
+            pt = x
+        elif isinstance(x, tuple):
+            pt = Point(x)
+        else:
+            pt = Point(x,y)
         has_neg, has_pos = False, False
         d1 = self.__sign(pt, self.p1, self.p2)
         d2 = self.__sign(pt, self.p2, self.p3)
@@ -231,7 +312,9 @@ class Triangle:
 
 
 class Line:
-
+    """
+        No scalable object
+    """
     def __init__(self, p1 : Point, p2 : Point, color : Color = Color(Color.BLACK), is_smooth = False, width = 3) -> None:
         self.p1 = p1
         self.p2 = p2
@@ -239,12 +322,18 @@ class Line:
         self.is_smooth = is_smooth
         self.width = width
     
+    def move(self, dx : int, dy : int) -> None:
+        self.p1 = self.p1 + (dx,dy)
+        self.p2 = self.p2 + (dx,dy)
+    
     def Length(self) -> float:
         return Point.Distance(self.p1, self.p2)
 
 
 class Text:
     """
+        No scalable object
+        
         `Point` - центр прямоугольника с текстом.
 
         `smooth` - сглаживание текста

@@ -1,6 +1,6 @@
 from __future__ import annotations
 import pygame
-from customtypes import Point, Color, Rectangle, Circle, Triangle, Line, Text
+from customtypes import *
 from typing import Union
 from copy import deepcopy
 
@@ -33,6 +33,9 @@ class GUI:
         self.data = [] # лист с объектами
         self.clock = pygame.time.Clock()
         self.tick = 10 # FPS
+
+        self.scale = 1.0 # для масштабирования
+
         pygame.font.init() # инициализируем шрифты
         pygame.font.Font(None, 24)
 
@@ -48,17 +51,17 @@ class GUI:
             self.clock.tick(self.tick)
             self.screen.fill(self.__background_color)
             func(pygame.event.get())
-            for i in self.data:
-                if isinstance(i, Rectangle):
-                    self.__rect(i)
-                elif isinstance(i, Circle):
-                    self.__circle(i)
-                elif isinstance(i, Triangle):
-                    self.__triangle(i)
-                elif isinstance(i, Line):
-                    self.__line(i)
-                elif isinstance(i, Text):
-                    self.__text(i)
+            for i in range(len(self.data)):
+                if isinstance(self.data[i], Rectangle):
+                    self.__rect(self.data[i])
+                elif isinstance(self.data[i], Circle):
+                    self.__circle(self.data[i])
+                elif isinstance(self.data[i], Triangle):
+                    self.__triangle(self.data[i])
+                elif isinstance(self.data[i], Line):
+                    self.__line(self.data[i])
+                elif isinstance(self.data[i], Text):
+                    self.__text(self.data[i])
                 else:
                     raise Exception(f"Wrong object i type={type(i)}")
             pygame.display.flip()
@@ -70,13 +73,22 @@ class GUI:
     def setObjects(self, list_of_objects : list) -> None:
         self.data = list_of_objects # ?????
     
+    def getMousePos(self) -> tuple:
+        return pygame.mouse.get_pos()
+    
+    def getMousePoint(self) -> Point:
+        return Point(self.getMousePos())
+
     def __rect(self, object : Rectangle) -> None:
+        object.setScale(self.scale)
         pygame.draw.rect(self.screen, object.color(), object.obj)
     
     def __circle(self, object : Circle) -> None:
+        object.setScale(self.scale)
         pygame.draw.circle(self.screen, object.color(), (object.x, object.y), object.r)
 
     def __triangle(self, object : Triangle) -> None:
+        object.setScale(self.scale)
         pygame.draw.polygon(self.screen, object.color(), object.getPoints())
     
     def __text(self, object : Text) -> None:

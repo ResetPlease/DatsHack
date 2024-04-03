@@ -28,8 +28,12 @@ t = Triangle(Point(300,300), Point(400,400), Point(300,400), color=Color(Color.R
 l = Line(Point(1,1), Point(200,100), Color(Color.GREEN), width=10)
 
 # Тест текста
-MousePosition = Text("Click Please", Point(200,200), smooth=True, size=36)
+MousePosition = Text("Click Please", Point(200,200), smooth=True, size=36, color = Color("#808000"))
 StacicText = Text("Hello World!", Point(300,300), smooth=True, size=72)
+
+testRect = Rectangle(600,600,200,200, Color(Color.MAGENTA))
+
+ScaleText = Text(f"Scale: {gui.scale}", Point(200, gui.height-20), Color(Color.RED), size=36, smooth=True)
 
 # главная функция где должна происходить отрисовка
 @gui.run
@@ -38,15 +42,22 @@ def main(events):
     c.move(1, 1)  # двигает объект(в данном случае круг) на dx и dy соответственно
     for event in events:  # обработка событий
         if event.type == pygame.MOUSEBUTTONUP:
-            pos = pygame.mouse.get_pos()
-            MousePosition.setText(str(pos))
-            print(pos)  # печатаем координату нажатия мыши
-            if r.collidepoint(pos[0], pos[1]):  # если нажали на прямоугольник `r`
-                print("COLLIDE RECT")
-            if c.collidepoint(pos[0], pos[1]):  # если нажали на круг `c`
-                print("COLLIDE CIRCLE")
-            if t.collidepoint(pos[0], pos[1]): # если нажали на треугольник
-                print("COLLIDE TRIANGLE")
+            if event.button == MOUSE.LEFT:
+                pos = gui.getMousePoint()
+                MousePosition.setText(str(pos))
+                print(pos)  # печатаем координату нажатия мыши
+                if r.collidepoint(pos):  # если нажали на прямоугольник `r`
+                    print("COLLIDE RECT")
+                if c.collidepoint(pos):  # если нажали на круг `c`
+                    print("COLLIDE CIRCLE")
+                if t.collidepoint(pos): # если нажали на треугольник
+                    print("COLLIDE TRIANGLE")
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == MOUSE.SCROLL_UP:  # Прокрутка вверх
+                gui.scale *= 1.1
+            elif event.button == MOUSE.SCROLL_DOWN:  # Прокрутка вниз
+                gui.scale /= 1.1
+            ScaleText.setText(f"Scale: {gui.scale}")
         elif event.type == pygame.KEYDOWN: # обработка событий нажатия на клавиши
             """
                 Подробнее обо всех событиях клавиатуры на
@@ -75,8 +86,8 @@ def main(events):
                 vector -= Vector.DOWN
 
     r.move((vector * SPEED).x, (vector * SPEED).y)
-    gui.setObjects([r,c, t, l, MousePosition, StacicText]) # самое главное - отрисовка всех элементов
-
+    data = [r,c, t, l, MousePosition, StacicText, testRect, ScaleText]
+    gui.setObjects(data) # самое главное - отрисовка всех элементов
 """
     Закрыть отрисовщик на Escape
 """
