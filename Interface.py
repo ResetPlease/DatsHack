@@ -3,6 +3,7 @@ from requests.models import Response
 from requests.exceptions import RequestException, Timeout, HTTPError
 from typing import Union
 import config
+import json
 
 class Interface:
     TOKEN : str
@@ -10,7 +11,7 @@ class Interface:
     timeout = 10
     def __init__(self, token):
         self.TOKEN = token
-        self.headers['Authorization'] = f"Basic {self.TOKEN}"
+        self.headers['X-Auth-Token'] = f"{self.TOKEN}"
     
     @staticmethod
     def Data(response : Response):
@@ -39,6 +40,7 @@ class Interface:
 
     def __post(self, url : str, data : dict) -> Union[None, str, dict]:
         try:
+            data = json.dumps(data)
             result = post(url, headers=self.headers, data=data, timeout=self.timeout)
             return Interface.Data(result)
         except Timeout:
