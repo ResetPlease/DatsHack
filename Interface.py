@@ -1,4 +1,4 @@
-from requests import get, post
+from requests import get, post, delete
 from requests.models import Response
 from requests.exceptions import RequestException, Timeout, HTTPError
 from typing import Union
@@ -52,6 +52,20 @@ class Interface:
         except Exception as e:
             print(f"Какой-то левак:\n{e}")
         return None
+    
+    def __delete(self, url : str) -> Union[None, str, dict]:
+        try:
+            result = delete(url, headers=self.headers, timeout=self.timeout)
+            return Interface.Data(result)
+        except Timeout:
+            print("Время ожидания ответа от сервера истекло")
+        except HTTPError as http_err:
+            print(f"Ошибка HTTP( ответ 4xx и 5xx):\n{http_err}")
+        except RequestException as request_exc:
+            print(f"Какой-то хайп RequestException:\n{request_exc}")
+        except Exception as e:
+            print(f"Какой-то левак:\n{e}")
+        return None
         
     
     def Register(self, name : str, url : str, method : str) -> None:
@@ -72,6 +86,8 @@ class Interface:
             setattr( Interface, name, lambda self, data : self.__post(url, data) )
         elif method.lower() == "get":
             setattr( Interface, name, lambda self, : self.__get(url) )
+        elif method.lower() == "delete":
+            setattr( Interface, name, lambda self, : self.__delete(url) )
 
 
 if __name__ == "__main__":

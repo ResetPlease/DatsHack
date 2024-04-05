@@ -5,8 +5,14 @@ import config
 man = Interface(config.TOKEN)
 man.Register("universe", "https://datsedenspace.datsteam.dev/player/universe", "GET")
 man.Register("travel", "https://datsedenspace.datsteam.dev/player/travel", "POST")
+man.Register("reset", "https://datsedenspace.datsteam.dev/player/reset", "DELETE")
 
-print(man.travel({"planets" : ["Moen"]}))
+
+# print(man.reset())
+
+print(man.universe())
+
+# print(man.travel({"planets" : ["Moen"]}))
 
 
 # result = man.universe()
