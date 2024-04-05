@@ -68,8 +68,7 @@ def packer(X, Y, storage, garb_ids, garbage):
 
 
 
-def pack_garbage(X, Y):
-
+def pack_garbage():
     man = Interface(config.TOKEN)
     man.Register("universe", "https://datsedenspace.datsteam.dev/player/universe", "GET")
     universe = man.universe()
