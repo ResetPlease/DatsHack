@@ -2,10 +2,11 @@ from requests import get, post
 from requests.models import Response
 from requests.exceptions import RequestException, Timeout, HTTPError
 from typing import Union
+import config
 
 class Interface:
     TOKEN : str
-    headers = {"Authorization" : None}
+    headers = {"X-Auth-Token" : config.TOKEN}
     timeout = 10
     def __init__(self, token):
         self.TOKEN = token
