@@ -65,11 +65,18 @@ def packer(X, Y, storage, garb_ids, garbage):
     return ans, free_space
 
 
-def pack_garbage(garbage):
+def normalize(fig):
+    minx, miny = min([_[0] for _ in fig]), min([_[1] for _ in fig])
+    return [[c[0] - minx, c[1] - miny] for c in fig]
+
+
+def pack_garbage(garbage, ship_garbage):
     # man = Interface(config.TOKEN)
     # man.Register("universe", "https://datsedenspace.datsteam.dev/player/universe", "GET")
     # universe = man.universe()
-    #garbage = universe["planet"]["garbage"] + universe["ship"]["garbage"]
+    # garbage = universe["planet"]["garbage"] + universe["ship"]["garbage"]
+    for fig in ship_garbage:
+        ship_garbage[fig] = normalize(ship_garbage[fig])
     X, Y = 8, 11
     garb_to_collect = {}
 
@@ -92,4 +99,5 @@ def pack_garbage(garbage):
 
     return ans
 
-print(pack_garbage())
+
+print(pack_garbage(garbage))
