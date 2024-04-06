@@ -92,7 +92,7 @@ def pack_garbage(garbage, ship_garbage):
     if ship_garbage is not None:
         for fig in ship_garbage:
             ship_garbage[fig] = normalize(ship_garbage[fig])
-            garbage += ship_garbage
+            garbage.update(ship_garbage)
 
     X, Y = 8, 11
     garb_to_collect = {}
