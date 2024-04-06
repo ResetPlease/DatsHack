@@ -46,18 +46,31 @@ def packer(X, Y, storage, garb_ids, garbage):
         put[id] = False
         for x in range(X):
             for y in range(Y):
+                '''
+                + x + y
+                - y + x
+                - x - y
+                + y - x
+                '''
+                for s in [1, -1]:
+                    if all(0 <= x + s * dot[0] < X and 0 <= y + s * dot[1] < Y for dot in fig):
+                        if all([storage[x + s * dot[0]][y + s * dot[1]] == 0 for dot in fig]):
+                            ans[id] = []
+                            put[id] = True
+                            for dot in fig:
+                                storage[x + s * dot[0]][y + s * dot[1]] = id
+                                ans[id].append([x + s * dot[0], y + s * dot[1]])
 
-                for dx in [1, -1, 1, -1]:
-                    for dy in [1, 1, -1, -1]:
-                        if all(0 <= x + dx * dot[0] < X and 0 <= y + dy * dot[1] < Y for dot in fig):
-                            if all([storage[x + dx * dot[0]][y + dy * dot[1]] == 0 for dot in fig]):
-                                ans[id] = []
-                                put[id] = True
-                                for dot in fig:
-                                    storage[x + dx * dot[0]][y + dy * dot[1]] = id
-                                    ans[id].append([x + dx * dot[0], y + dy * dot[1]])
+                    # if put[id]: break
 
-                        if put[id]: break
+                    if not put[id] and all(0 <= x + s * dot[1] < X and 0 <= y - s * dot[0] < Y for dot in fig):
+                        if all([storage[x + s * dot[1]][y - s * dot[0]] == 0 for dot in fig]):
+                            ans[id] = []
+                            put[id] = True
+                            for dot in fig:
+                                storage[x + s * dot[1]][y - s * dot[0]] = id
+                                ans[id].append([x + s * dot[1], y - s * dot[0]])
+
                     if put[id]: break
             if put[id]: break
 
