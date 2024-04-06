@@ -118,18 +118,25 @@ def pack_garbage(garbage, ship_garbage):
 
     if storage_taken - storage_taken_old < 5:
         storage = [[0 for i in range(Y)] for j in range(X)]
-        for id in ship_garbage:
+        for id in list(ship_garbage.keys()):  # Создаем список ключей для безопасной итерации
             for c in ship_garbage[id]:
                 storage[c[0]][c[1]] = id
 
-        for id in garb_to_collect:
+        # Создаем копии словарей для безопасной модификации
+        garb_to_collect_copy = garb_to_collect.copy()
+        garbage_copy = garbage.copy()
+
+        for id in list(garb_to_collect_copy.keys()):  # Используем список ключей для безопасной итерации
             if id in ship_garbage:
-                garb_to_collect.remove(id)
+                del garb_to_collect_copy[id]  # Используем del для удаления ключа из словаря
 
-        for id in garbage:
+        for id in list(garbage_copy.keys()):  # Используем список ключей для безопасной итерации
             if id in ship_garbage:
-                garbage.remove(id)
+                del garbage_copy[id]  # Используем del для удаления ключа из словаря
 
-        ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
+        ans, storage_taken = packer(X, Y, storage, garb_to_collect_copy, garbage_copy)
 
+    # if storage_taken - storage_taken_old < 5:
+    #     for i in range(10):
+    #
     return ans
