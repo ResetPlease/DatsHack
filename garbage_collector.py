@@ -167,6 +167,7 @@ def pack_garbage(garbage, ship_garbage):
     cnt = 0
     if storage_taken - storage_taken_old < 5:
         while storage_taken - storage_taken_old < 5 and cnt < 5:
+            storage = [[0 for i in range(Y)] for j in range(X)]
             garb_to_collect = smart_shuffle_with_probability(garb_to_collect, 10)
             ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
             cnt += 1
