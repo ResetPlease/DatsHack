@@ -1,9 +1,11 @@
 import Interface
 import config
+
 STOP = 2
 
 S = []
 G = []
+
 
 # def f(n, used, storage, garb_ids, garbage, X, Y, takearray):
 #     if n == STOP:
@@ -35,7 +37,7 @@ G = []
 #                         pass
 #
 
-#naive_packer
+# naive_packer
 def packer(X, Y, storage, garb_ids, garbage):
     ans = {}
     put = {}
@@ -59,13 +61,8 @@ def packer(X, Y, storage, garb_ids, garbage):
                     if put[id]: break
             if put[id]: break
 
-
-
-
-    return ans
-
-
-
+    free_space = X * Y - sum([len(ans[fig_id]) for fig_id in ans])
+    return ans,
 
 
 def pack_garbage():
@@ -75,7 +72,8 @@ def pack_garbage():
     garbage = universe["planet"]["garbage"] + universe["ship"]["garbage"]
     X, Y = universe["ship"]["capacityX", "capacityY"]
 
-    garbage = {'2FyH43': [[0, 3], [1, 3], [2, 3], [2, 2], [2, 1], [3, 3], [3, 1], [3, 0]], '2HTbk3': [[0, 2], [0, 1], [0, 0], [1, 2], [1, 1]]}
+    garbage = {'2FyH43': [[0, 3], [1, 3], [2, 3], [2, 2], [2, 1], [3, 3], [3, 1], [3, 0]],
+               '2HTbk3': [[0, 2], [0, 1], [0, 0], [1, 2], [1, 1]]}
     garb_to_collect = {}
 
     for piece in garbage:
@@ -96,4 +94,3 @@ def pack_garbage():
     ans = packer(X, Y, storage, garb_to_collect, garbage)
 
     return ans
-
