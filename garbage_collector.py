@@ -85,7 +85,7 @@ def normalize(fig):
     return [[c[0] - minx, c[1] - miny] for c in fig]
 
 
-def smart_shuffle_with_probability(array, num_swaps):
+def smart_shuffle_with_probability(array, num_swaps, garbage):
     """
     Функция выполняет "умный" шаффл массива с учетом вероятности обмена элементов.
 
@@ -101,7 +101,7 @@ def smart_shuffle_with_probability(array, num_swaps):
         # Выбираем два случайных индекса
         index1, index2 = random.sample(range(len(shuffled_array)), 2)
         # Вычисляем разницу между элементами
-        diff = abs(shuffled_array[index1] - shuffled_array[index2])
+        diff = abs(len(garbage[shuffled_array[index1]]) - len(garbage[shuffled_array[index2]]))
         # Вычисляем вероятность обмена на основе разницы
         probability = 1 - (diff / (max(shuffled_array) - min(shuffled_array) + 1))
         # Случайным образом решаем, следует ли обменять элементы
