@@ -84,21 +84,13 @@ def best_path(result):
             nums[i[1]] = idx
             names[idx] = i[1]
             idx+=1
-    
     matrix = np.ones((len(nums), len(nums)))*(1e12)
     for i in result:
         u = nums[i[0]]
         v = nums[i[1]]
         w = i[2]
         matrix[u,v] = w
-    # matrix = {}
-    # for i in result:
-    #     print(i)
-    #     if i[0] in matrix:
-    #         matrix[i[0]][i[1]] = i[2]
-    #     else:
-    #         matrix[i[0]] = {i[1] : i[2]}
-    b, p = ACO(matrix, 10, 100, 1.0, 2.0, 0.5)
+    b, p = ACO(matrix, 10, 50, 1.0, 2.0, 0.5)
     print("Distance: ", p)
     r = []
     for i in b:
@@ -112,13 +104,6 @@ if __name__ == "__main__":
     result = data['universe']
     path = best_path(result)
     end_time = time.time()
-    d = {}
-    for i in result:
-        print(i)
-        if i[0] in d:
-            d[i[0]].append(i[1])
-        else:
-            d[i[0]] = [i[1]]
     for i in range(len(path)-1):
         be = False
         for j in result:
