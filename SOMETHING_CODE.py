@@ -106,17 +106,17 @@ if __name__ == "__main__":
             travel = man.travel({"planets" : [names[planet_num]]})
             print(travel)
             planet_garb = travel["planetGarbage"]
-            if len(planet_garb) == 0: # если остановились на пустой планете скип
-                continue
             ship_garb = travel["shipGarbage"]
         time.sleep(0.25)
+        if len(planet_garb) == 0:  # если остановились на пустой планете скип
+            continue
         garb_config, storage_taken = pack_garbage(planet_garb, ship_garb)
         print(garb_config, storage_taken)
         collect_res = man.collect({"garbage" : garb_config})
         print(collect_res)
         EMPTIED = False
         if len(collect_res["leaved"]) == 0:
-            clear[planet_num] = True
+            clear[planet_num] = True # сейчас не используется
         time.sleep(0.25)
         if storage_taken > 75:
             path_eden = dijkstra(matrix, planet_num, EDEN_IDX)
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
             i += 1
             EMPTIED = True
-            travel = man.travel({"planets" : path_req})
+            travel = man.travel({"planets": path_req})
             print("------------------EMPTYING-------------")
             print(travel)
             print("---------------------------------------")
