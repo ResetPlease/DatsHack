@@ -1,3 +1,5 @@
+import random
+
 import Interface
 import config
 
@@ -113,30 +115,35 @@ def pack_garbage(garbage, ship_garbage):
     garb_to_collect = sorted(garb_to_collect.keys(), key=lambda x: x[1])
     storage = [[0 for i in range(Y)] for j in range(X)]
 
-    storage_taken_old = sum([len(ship_garbage[fig_id]) for fig_id in ship_garbage])
+    storage_taken_old = 0 if not ship_garbage else sum([len(ship_garbage[fig_id]) for fig_id in ship_garbage])
     ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
 
+    # if storage_taken - storage_taken_old < 5:
+    #     storage = [[0 for i in range(Y)] for j in range(X)]
+    #     for id in ship_garbage.keys():  # Создаем список ключей для безопасной итерации
+    #         for c in ship_garbage[id]:
+    #             storage[c[0]][c[1]] = id
+    #
+    #     # Создаем копии словарей для безопасной модификации
+    #     garb_to_collect_copy = garb_to_collect.copy()
+    #     garbage_copy = garbage.copy()
+    #
+    #     for id in garb_to_collect_copy:
+    #         if id in ship_garbage:
+    #             garb_to_collect.remove(id)
+    #
+    #     for id in garbage_copy.keys():  # Используем список ключей для безопасной итерации
+    #         if id in ship_garbage:
+    #             del garbage[id]  # Используем del для удаления ключа из словаря
+    #
+    #     ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
+
+
+    cnt = 0
     if storage_taken - storage_taken_old < 5:
-        storage = [[0 for i in range(Y)] for j in range(X)]
-        for id in ship_garbage.keys():  # Создаем список ключей для безопасной итерации
-            for c in ship_garbage[id]:
-                storage[c[0]][c[1]] = id
-
-        # Создаем копии словарей для безопасной модификации
-        garb_to_collect_copy = garb_to_collect.copy()
-        garbage_copy = garbage.copy()
-
-        for id in garb_to_collect_copy:
-            if id in ship_garbage:
-                garb_to_collect.remove(id)
-
-        for id in garbage_copy.keys():  # Используем список ключей для безопасной итерации
-            if id in ship_garbage:
-                del garbage[id]  # Используем del для удаления ключа из словаря
-
-        ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
-
-    if storage_taken - storage_taken_old < 5:
-        while(storage_taken - storage_taken_old < 5)
+        while storage_taken - storage_taken_old < 5 and cnt < 5:
+            random.shuffle(garb_to_collect)
+            ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
+            cnt += 1
 
     return ans
