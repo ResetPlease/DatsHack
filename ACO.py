@@ -8,7 +8,11 @@ manager.Register("universe", "https://datsedenspace.datsteam.dev/player/universe
 
 def ACO(distance_matrix, num_ants, max_iter, alpha, beta, rho):
     n = len(distance_matrix)
-    pheromone = np.ones((n, n))  # Инициализация феромона
+    pheromone = np.zeros((n, n))  # Инициализация феромона
+    for i in range(n):
+        for j in range(n):
+            if distance_matrix[i][j] != 1e12:
+                pheromone[i][j] = 1
 
     best_path = None
     best_distance = float('inf')
@@ -22,17 +26,25 @@ def ACO(distance_matrix, num_ants, max_iter, alpha, beta, rho):
 
             while len(path) < n:
                 current = path[-1]
-                probs = np.zeros(n)
+                neighbors = []
+                for i in range(n):
+                    if (i != current) and distance_matrix[current][i] != 1e12:
+                        neighbors.append(i)
+                probs = np.zeros(len(neighbors))
                 possible_next_nodes = np.where(~visited)[0]  # Получаем индексы непосещенных вершин
-                for next_node in possible_next_nodes:
-                    if distance_matrix[current][next_node] != (1e12):
-                        probs[next_node] = (pheromone[current][next_node] ** alpha) * ((1.0 / distance_matrix[current][next_node]) ** beta)
+                for i in range(len(neighbors)):
+                    if visited[neighbors[i]] == 0:
+                        probs[i] = (pheromone[current][neighbors[i]] ** alpha) * ((1.0 / distance_matrix[current][neighbors[i]]) ** beta)
+
+                # for next_node in possible_next_nodes:
+                #     if distance_matrix[current][next_node] != (1e12):
+                #         probs[next_node] = (pheromone[current][next_node] ** alpha) * ((1.0 / distance_matrix[current][next_node]) ** beta)
                 if np.sum(probs) > 0:
                     probs /= np.sum(probs)  # Нормализуем вероятности
                 else:
                     probs.fill(1 / len(probs))  # Если вероятности нулевые, устанавливаем равномерное распределение
 
-                next = np.random.choice(n, p=probs)
+                next = np.random.choice(neighbors, p=probs)
                 path.append(next)
                 visited[next] = True
 
@@ -47,13 +59,12 @@ def ACO(distance_matrix, num_ants, max_iter, alpha, beta, rho):
                 best_distance = distance
 
         pheromone *= (1 - rho)  # Испарение феромона
+
         for i in range(num_ants):
             for j in range(n - 1):
                 from_node, to_node = ant_paths[i][j], ant_paths[i][j + 1]
                 if distance_matrix[from_node][to_node] != 1e12:  # Проверяем наличие ребра
                     pheromone[from_node][to_node] += 1.0 / best_distance
-                else:
-                    pheromone[from_node][to_node] += -1
 
     return best_path, best_distance
 
@@ -71,7 +82,7 @@ def best_path(result):
             idx+=1
         if i[1] not in nums:
             nums[i[1]] = idx
-            names[idx] = i[0]
+            names[idx] = i[1]
             idx+=1
     
     matrix = np.ones((len(nums), len(nums)))*(1e12)
