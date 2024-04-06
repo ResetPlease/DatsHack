@@ -102,6 +102,3 @@ def pack_garbage(garbage, ship_garbage):
     ans = packer(X, Y, storage, garb_to_collect, garbage)
 
     return ans
-
-
-print(pack_garbage(garbage))
