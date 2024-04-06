@@ -61,8 +61,8 @@ def packer(X, Y, storage, garb_ids, garbage):
                     if put[id]: break
             if put[id]: break
 
-    free_space = X * Y - sum([len(ans[fig_id]) for fig_id in ans])
-    return ans, free_space
+    storage_taken = sum([len(ans[fig_id]) for fig_id in ans])
+    return ans, storage_taken
 
 
 def normalize(fig):
