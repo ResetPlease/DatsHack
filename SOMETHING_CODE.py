@@ -44,12 +44,12 @@ def dijkstra(graph, source, destination):
     path.reverse()
     return path
 
-def best_path(matrix):
+def best_path(matrix, start):
     """
         universe is a data with planets and edges
     """
 
-    b, p = ACO(matrix, 10, 100, 1.0, 2.0, 0.5)
+    b, p = ACO(matrix, 10, 100, 1.0, 2.0, 0.5, start=start)
     print("Distance: ", p)
     r = []
     for i in b:
@@ -60,6 +60,7 @@ def best_path(matrix):
 if __name__ == "__main__":
     start_time = time.time()
     data = man.universe()
+    cur = data["ship"]["planet"]["name"]
     result = data['universe']
     nums = {}
     idx = 0
@@ -70,11 +71,15 @@ if __name__ == "__main__":
             nums[i[0]] = idx
             if i[0] == "Eden":
                 EDEN_IDX = idx
+            if i[0] == cur:
+                start = idx
             names[idx] = i[0]
             idx += 1
         if i[1] not in nums:
             if i[1] == "Eden":
                 EDEN_IDX = idx
+            if i[1] == cur:
+                start = idx
             nums[i[1]] = idx
             names[idx] = i[1]
             idx += 1
@@ -87,22 +92,26 @@ if __name__ == "__main__":
         w = i[2]
         matrix[u, v] = w
 
-    path = best_path(matrix)[1:]
+    path = best_path(matrix, start)[1:]
     end_time = time.time()
     print(path)
     print("Execution time:", end_time-start_time, "seconds")
     clear = []
     EMPTIED = False
     planet_garb = []
+    ship_garb = []
     for i in range(len(path)):
         planet_num = path[i]
         if EMPTIED == False:
             travel = man.travel({"planets" : [names[planet_num]]})
+            print(travel)
             planet_garb = travel["planetGarbage"]
             ship_garb = travel["shipGarbage"]
         time.sleep(250)
         garb_config, storage_taken = pack_garbage(planet_garb, ship_garb)
+        print(garb_config, storage_taken)
         collect_res = man.collect({"garbage" : garb_config})
+        print(collect_res)
         EMPTIED = False
         if len(collect_res["leaved"]) == 0:
             clear[planet_num] = True
@@ -117,7 +126,12 @@ if __name__ == "__main__":
 
             i += 1
             EMPTIED = True
-            planet_garb = man.travel({"planets" : path_req})["planetGarbage"]
+            travel = man.travel({"planets" : path_req})
+            print("------------------EMPTYING-------------")
+            print(travel)
+            print("---------------------------------------")
+            planet_garb = travel["planetGarbage"]
+            ship_garb = travel["shipGarbage"]
 
 
 
