@@ -96,6 +96,7 @@ def smart_shuffle_with_probability(array, num_swaps, garbage):
     # Копируем исходный массив, чтобы не изменять его
     shuffled_array = array.copy()
 
+    D = (max([len(garbage[f]) for f in garbage]) - min([len(garbage[f]) for f in garbage]) + 1)
     # Выполняем заданное количество шагов перемешивания
     for _ in range(num_swaps):
         # Выбираем два случайных индекса
@@ -103,7 +104,7 @@ def smart_shuffle_with_probability(array, num_swaps, garbage):
         # Вычисляем разницу между элементами
         diff = abs(len(garbage[shuffled_array[index1]]) - len(garbage[shuffled_array[index2]]))
         # Вычисляем вероятность обмена на основе разницы
-        probability = 1 - (diff / (max(shuffled_array) - min(shuffled_array) + 1))
+        probability = 1 - (diff / D)
         # Случайным образом решаем, следует ли обменять элементы
         if random.random() < probability:
             shuffled_array[index1], shuffled_array[index2] = shuffled_array[index2], shuffled_array[index1]
@@ -168,7 +169,7 @@ def pack_garbage(garbage, ship_garbage):
     if storage_taken - storage_taken_old < 5:
         while storage_taken - storage_taken_old < 5 and cnt < 5:
             storage = [[0 for i in range(Y)] for j in range(X)]
-            garb_to_collect = smart_shuffle_with_probability(garb_to_collect, 10)
+            garb_to_collect = smart_shuffle_with_probability(garb_to_collect, 10, garbage)
             ans, storage_taken = packer(X, Y, storage, garb_to_collect, garbage)
             cnt += 1
 
