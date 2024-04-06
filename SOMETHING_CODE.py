@@ -115,8 +115,8 @@ if __name__ == "__main__":
         collect_res = man.collect({"garbage" : garb_config})
         print(collect_res)
         EMPTIED = False
-        if len(collect_res["leaved"]) == 0:
-            clear[planet_num] = True # сейчас не используется
+        # if len(collect_res["leaved"]) == 0:
+        #     clear[planet_num] = True # сейчас не используется
         time.sleep(0.25)
         if storage_taken > 75:
             path_eden = dijkstra(matrix, planet_num, EDEN_IDX)
